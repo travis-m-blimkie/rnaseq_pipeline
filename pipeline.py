@@ -3,7 +3,6 @@ import subprocess as sp
 import pandas as pd
 from glob import glob
 from re import search
-from os.path import exists
 import argparse
 
 parser = argparse.ArgumentParser(description="Pipeline parameters")
@@ -30,6 +29,18 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--strand",
+    type=str,
+    help="Stranded option for HTSeq"
+)
+
+parser.add_argument(
+    "--gtf",
+    type=str,
+    help="Path to GTF for HTSeq"
+)
+
+parser.add_argument(
     "--do_cram",
     action="store_true",
     default=True,
@@ -42,6 +53,8 @@ args = parser.parse_args()
 sample_sheet = args.sample_sheet
 genome_dir = args.genome_dir
 threads = args.threads
+strand = args.strand
+gtf = args.gtf
 do_cram = args.do_cram
 
 
@@ -95,17 +108,23 @@ def run_star(df, genome_dir, threads):
 
 
 ## HTSeq
-# def run_htseq(gtf_file):
-#     os.makedirs(os.path.dirname("HTSeq/"), exist_ok=True)
+def run_htseq(df, strand, gtf_file):
+    os.makedirs(os.path.dirname("HTSeq/"), exist_ok=True)
 
-#     htseq_parallel = "find STAR/ -name '*.bam' | parallel --jobs " + threads + " 'htseq-count -s reverse -a 10 -f bam -r pos {} " \
-#                      + gtf_file + " > HTSeq/{/.}.count'"
-#     sp.run(htseq_parallel, shell=True)
+    for _, row in df.iterrows():
+        name = row["name"]
 
-#     # Rename the counts files (remove "_Aligned.sortedByCoord.out")
-#     count_files = glob("HTSeq/*.count")
-#     for c in count_files:
-#         os.rename(c, c.replace("_Aligned.sortedByCoord.out", ""))
+        htseq_cmd = (
+            f"htseq-count "
+            f"-s {strand} "
+            f"-a 10 "
+            f"-f bam "
+            f"-r pos "
+            f"-c HTSeq/{name}.count "
+            f"STAR/{name}.bam "
+            f"{gtf_file} "
+        )
+        print(htseq_cmd)
 
 
 ## MultiQC
