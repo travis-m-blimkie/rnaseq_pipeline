@@ -128,9 +128,9 @@ def run_htseq(df, strand, gtf_file):
 
 
 ## MultiQC
-# def run_multiqc():
-#     multiqc_cmd = "multiqc FastQC/ STAR/ HTSeq/"
-#     sp.run(multiqc_cmd, shell=True)
+def run_multiqc():
+    multiqc_cmd = "multiqc -f -o MultiQC FastQC STAR HTSeq"
+    sp.run(multiqc_cmd, shell=True)
 
 
 ## Samtools/CRAM
