@@ -47,6 +47,12 @@ parser.add_argument(
     help="Enable CRAM output (default: True)"
 )
 
+parser.add_argument(
+    "--fasta",
+    type=str,
+    help="Path to fasta for Samtools CRAM conversion"
+)
+
 args = parser.parse_args()
 
 ## Define input parameters
@@ -56,6 +62,7 @@ threads = args.threads
 strand = args.strand
 gtf = args.gtf
 do_cram = args.do_cram
+fasta = args.fasta
 
 
 df = pd.read_csv(sample_sheet)
@@ -131,7 +138,7 @@ def run_multiqc():
 
 
 ## Samtools/CRAM
-def run_samtools(df, threads, fasta_file):
+def run_samtools(df, threads, fasta):
     for _, row in df.iterrows():
         name = row["name"]
 
@@ -139,11 +146,11 @@ def run_samtools(df, threads, fasta_file):
             f"samtools view "
             f"--threads {threads} "
             f"-C "
-            f"-T {fasta_file} "
-            f"STAR/{name}.bam "
-            f"> STAR/{name}.cram"
+            f"-T {fasta} "
+            f"-o STAR/{name}.cram "
+            f"STAR/{name}.bam"
         )
-        print(cram_cmd)
+        sp.run(cram_cmd, shell=True, check=True)
 
 
 ## Version information
@@ -176,11 +183,11 @@ def run_versions(run_cram):
     program_version_df.to_csv("version_information.csv", index=False)
 
 
-## Run all the functions
-run_fastqc(fastq_string, threads)
-#run_star(input_dir=my_fastq_dir, genome_dir=my_genome_dir)
-#run_htseq(gtf_file=my_gtf_file)
-#run_multiqc()
-#if do_cram:
-#    run_samtools(fasta_file=my_fasta_file)
-run_versions(run_cram=do_cram)
+## Run the functions
+# run_fastqc(fastq_string, threads)
+# run_star(df, genome_dir, threads)
+run_htseq(df, strand, gtf)
+run_multiqc()
+if do_cram:
+    run_samtools(df, threads, fasta)
+run_versions(do_cram)
