@@ -59,27 +59,39 @@ def run_fastqc(all_fastq_files, threads):
 
 
 ## STAR
-# def run_star(input_dir, genome_dir):
-#     os.makedirs(os.path.dirname("STAR/"), exist_ok=True)
-#     fastq_files = glob(input_dir + "*R1.fastq.gz")
+def run_star(df, genome_dir, threads):
+    os.makedirs(os.path.dirname("STAR/"), exist_ok=True)
 
-#     for f in fastq_files:
-#         prefix = os.path.basename(f.replace("_R1.fastq.gz", ""))
-#         check_name = "STAR/" + prefix + "_Aligned.sortedByCoord.out.bam"
+    for _, row in df.iterrows():
+        name = row["name"]
+        fastq1 = row["fastq1"]
+        fastq2 = row["fastq2"]
 
-#         star_command = "STAR --runThreadN " + threads + " --runMode alignReads --genomeLoad LoadAndKeep --limitBAMsortRAM " \
-#             "48000000000 --outSAMtype BAM SortedByCoordinate --genomeDir " + genome_dir + " --readFilesIn " \
-#             + f + " --readFilesCommand zcat --outFileNamePrefix STAR/" + prefix + "_"
+        out_prefix = f"STAR/{name}_"
 
-#         if exists(check_name):
-#             print("Skipping, STAR output already exists for", prefix)
-#         else:
-#             sp.run(star_command, shell=True)
+        star_cmd = (
+            f"STAR "
+            f"--runThreadN {threads} "
+            f"--runMode alignReads "
+            f"--limitBAMsortRAM 48000000000 "
+            f"--genomeLoad LoadAndKeep "
+            f"--genomeDir {genome_dir} "
+            f"--readFilesIn {fastq1} {fastq2} "
+            f"--readFilesCommand zcat "
+            f"--outFileNamePrefix {out_prefix} "
+            f"--outSAMtype BAM SortedByCoordinate"
+        )
 
-#     sp.run("STAR --genomeDir " + genome_dir + " --genomeLoad Remove", shell=True)
-#     sp.run("rmdir _STARtmp/", shell=True)
-#     sp.run("rm Aligned.out.sam Log.out Log.final.out Log.progress.out SJ.out.tab", shell=True)
-#     sp.run("rm STAR/*SJ.out.tab", shell=True)
+        sp.run(star_cmd, shell=True)
+
+    bam_files = glob("STAR/*.bam")
+    for b in bam_files:
+        os.rename(b, b.replace("_Aligned.sortedByCoord.out", ""))
+
+    sp.run(f"STAR --genomeDir {genome_dir} --genomeLoad Remove", shell=True)
+    sp.run("rmdir _STARtmp/", shell=True)
+    sp.run("rm Aligned.out.sam Log.out Log.final.out Log.progress.out SJ.out.tab", shell=True)
+
 
 
 ## HTSeq
