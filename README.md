@@ -16,3 +16,11 @@ When completed, a CSV file is created to store version information for each prog
 - Genome index should already be created with a compatible STAR version
 - Only supports paired-end short read RNA-Seq data
 - Currently no support for passing additional command line arguments to programs; e.g. `htseq-count` is run with the default option for `--mode` (union)
+
+## Authors
+
+Travis Blimkie
+
+## AI disclosure
+
+Claude was used to help write some sections of `pipeline.py`.
