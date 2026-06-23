@@ -78,7 +78,6 @@ def run_fastqc(all_fastq_files, threads):
     )
     sp.run(fastqc_command, shell=True, check=True)
 
-
 # STAR
 def run_star(df, genome_dir, threads):
     os.makedirs(os.path.dirname("STAR/"), exist_ok=True)
@@ -118,7 +117,6 @@ def run_star(df, genome_dir, threads):
         check=True,
     )
 
-
 # HTSeq
 def run_htseq(df, strand, gtf_file):
     os.makedirs(os.path.dirname("HTSeq/"), exist_ok=True)
@@ -132,18 +130,16 @@ def run_htseq(df, strand, gtf_file):
             f"-a 10 "
             f"-f bam "
             f"-r pos "
-            f"-c HTSeq/{name}.count "
             f"STAR/{name}.bam "
-            f"{gtf_file}"
+            f"{gtf_file} "
+            f"> HTSeq/{name}.count"
         )
         sp.run(htseq_cmd, shell=True, check=True)
-
 
 # MultiQC
 def run_multiqc():
     multiqc_cmd = "multiqc -f -o MultiQC FastQC STAR HTSeq"
     sp.run(multiqc_cmd, shell=True, check=True)
-
 
 # Samtools/CRAM
 def run_samtools(df, threads, fasta):
@@ -159,7 +155,6 @@ def run_samtools(df, threads, fasta):
             f"STAR/{name}.bam"
         )
         sp.run(cram_cmd, shell=True, check=True)
-
 
 # Version information
 def run_versions(run_cram):
@@ -224,7 +219,6 @@ def run_versions(run_cram):
 
     program_version_df = pd.DataFrame(program_version_dict)
     program_version_df.to_csv("version_information.csv", index=False)
-
 
 # Run the functions
 # run_fastqc(fastq_string, threads)
