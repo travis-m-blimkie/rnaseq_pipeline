@@ -68,7 +68,7 @@ fastq_string = " ".join(str(f) for f in fastq_files)
 def run_fastqc(all_fastq_files, threads):
     os.makedirs(os.path.dirname("FastQC/"), exist_ok=True)
     fastqc_command = "fastqc -q -t " + str(threads) + " -o FastQC/ " + all_fastq_files
-    sp.run(fastqc_command, shell=True)
+    sp.run(fastqc_command, shell=True, check=True)
 
 
 ## STAR
@@ -95,16 +95,13 @@ def run_star(df, genome_dir, threads):
             f"--outSAMtype BAM SortedByCoordinate"
         )
 
-        sp.run(star_cmd, shell=True)
+        sp.run(star_cmd, shell=True, check=True)
 
     bam_files = glob("STAR/*.bam")
     for b in bam_files:
         os.rename(b, b.replace("_Aligned.sortedByCoord.out", ""))
 
-    sp.run(f"STAR --genomeDir {genome_dir} --genomeLoad Remove", shell=True)
-    sp.run("rmdir _STARtmp/", shell=True)
-    sp.run("rm Aligned.out.sam Log.out Log.final.out Log.progress.out SJ.out.tab", shell=True)
-
+    sp.run(f"STAR --genomeDir {genome_dir} --genomeLoad Remove", shell=True, check=True)
 
 
 ## HTSeq
@@ -124,13 +121,13 @@ def run_htseq(df, strand, gtf_file):
             f"STAR/{name}.bam "
             f"{gtf_file} "
         )
-        print(htseq_cmd)
+        sp.run(htseq_cmd, shell=True, check=True)
 
 
 ## MultiQC
 def run_multiqc():
     multiqc_cmd = "multiqc -f -o MultiQC FastQC STAR HTSeq"
-    sp.run(multiqc_cmd, shell=True)
+    sp.run(multiqc_cmd, shell=True, check=True)
 
 
 ## Samtools/CRAM
