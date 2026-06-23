@@ -134,16 +134,19 @@ def run_multiqc():
 
 
 ## Samtools/CRAM
-# def run_samtools(fasta_file):
-#     bam_files = glob("STAR/*.bam")
-#     for b in bam_files:
-#         cram_name = b.replace("bam", "cram")
-#         cram_command = "samtools view --threads " + threads + " -C " + b + " -T " + fasta_file + " > " + cram_name
+def run_samtools(df, threads, fasta_file):
+    for _, row in df.iterrows():
+        name = row["name"]
 
-#         if exists(cram_name):
-#             print("Skipping, CRAM file already exists for", cram_name)
-#         else:
-#             sp.run(cram_command, shell=True)
+        cram_cmd = (
+            f"samtools view "
+            f"--threads {threads} "
+            f"-C "
+            f"-T {fasta_file} "
+            f"STAR/{name}.bam "
+            f"> STAR/{name}.cram"
+        )
+        print(cram_cmd)
 
 
 ## Version information
