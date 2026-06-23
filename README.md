@@ -23,4 +23,4 @@ Travis Blimkie
 
 ## AI disclosure
 
-Claude was used to help write some sections of `pipeline.py`.
+Claude and Posit Assistant was used to help write some sections of `pipeline.py`.
