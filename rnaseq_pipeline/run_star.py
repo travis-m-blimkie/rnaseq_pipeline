@@ -4,6 +4,28 @@ from glob import glob
 
 # STAR
 def run_star(df, genome_dir, threads):
+    """
+    Align FASTQ files to a reference genome using STAR.
+
+    Iterates over each row in the sample sheet, running STAR in
+    alignReads mode on the corresponding fastq1/fastq2 files, with the
+    genome kept loaded in shared memory ("LoadAndKeep") across samples for
+    efficiency. Output BAM files are sorted by coordinate and written to the
+    "STAR" directory, then renamed from STAR's default
+    "<name>_Aligned.sortedByCoord.out.bam" naming to "<name>.bam". Once all
+    samples have been processed, the shared genome index is removed from
+    memory.
+
+    Args:
+        df (pandas.DataFrame): Sample sheet containing "name", "fastq1", and
+            "fastq2" columns for each sample to align.
+        genome_dir (str): Path to the STAR genome index directory.
+        threads (int): Number of threads to pass to STAR for alignment.
+
+    Raises:
+        subprocess.CalledProcessError: If any STAR command (alignment or
+            genome unload) exits with a non-zero status.
+    """
     os.makedirs(os.path.dirname("STAR/"), exist_ok=True)
 
     for _, row in df.iterrows():

@@ -4,6 +4,26 @@ import pandas as pd
 
 # Version information
 def run_versions(run_cram):
+    """
+    Record the installed versions of all pipeline tools to a CSV file.
+
+    Queries the installed versions of FastQC, STAR, HTSeq, and MultiQC by
+    calling each tool's version command and parsing the output. If
+    `run_cram` is True, samtools' version is also queried and included,
+    since CRAM conversion depends on it. The collected program/version
+    pairs are written to "version_information.csv" in the current working
+    directory.
+
+    Args:
+        run_cram (bool): Whether the pipeline includes a CRAM conversion
+            step. If True, samtools is included in the version report.
+
+    Raises:
+        subprocess.CalledProcessError: If any version-check command exits
+            with a non-zero status.
+        AttributeError: If a version string cannot be parsed from a tool's
+            output (i.e. the regex search returns no match).
+    """
     version_fastqc = (
         sp.check_output("fastqc --version", shell=True)
         .decode("utf-8")
