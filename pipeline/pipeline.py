@@ -32,26 +32,26 @@ parser.add_argument(
 parser.add_argument(
     "--strand",
     type=str,
-    help="Stranded option for HTSeq"
+    default="reverse",
+    help="Stranded option for HTSeq: yes, no, reverse (default)"
 )
 
 parser.add_argument(
     "--gtf",
     type=str,
-    help="Path to GTF for HTSeq"
+    help="Path to the GTF file for HTSeq"
 )
 
 parser.add_argument(
     "--cram",
     action="store_true",
-    default=True,
-    help="Enable CRAM output (default: True)"
+    help="Enable CRAM output"
 )
 
 parser.add_argument(
     "--fasta",
     type=str,
-    help="Path to fasta for Samtools CRAM conversion"
+    help="Path to fasta for Samtools CRAM conversion. Required if --cram is specified"
 )
 
 args = parser.parse_args()
