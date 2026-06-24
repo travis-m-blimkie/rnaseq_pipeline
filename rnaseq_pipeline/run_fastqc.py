@@ -2,7 +2,7 @@ import os
 import subprocess as sp
 
 # FastQC
-def run_fastqc(all_fastq_files, threads):
+def run_fastqc(df, threads):
     """
     Run FastQC on a set of FASTQ files.
 
@@ -10,8 +10,8 @@ def run_fastqc(all_fastq_files, threads):
     reports to the "FastQC" directory (created if it doesn't already exist).
 
     Args:
-        all_fastq_files (str): Space-separated string of paths to FASTQ
-            files to run FastQC on.
+        df (pandas.DataFrame): Sample sheet containing "name", "fastq1", and
+            "fastq2" columns for each sample to process.
         threads (int): Number of threads to pass to FastQC for parallel
             processing of files.
 
@@ -20,7 +20,12 @@ def run_fastqc(all_fastq_files, threads):
             non-zero status.
     """
     os.makedirs(os.path.dirname("FastQC/"), exist_ok=True)
+
+    fastq_files = df[["fastq1", "fastq2"]].values.flatten().tolist()
+    fastq_string = " ".join(str(f) for f in fastq_files)
+
     fastqc_command = (
-        f"fastqc -q -t {threads} -o FastQC/ {all_fastq_files}"
+        f"fastqc -q -t {threads} -o FastQC/ {fastq_string}"
     )
+
     sp.run(fastqc_command, shell=True, check=True)

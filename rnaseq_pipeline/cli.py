@@ -70,11 +70,8 @@ def main():
 
     df = pd.read_csv(sample_sheet)
 
-    fastq_files = df[["fastq1", "fastq2"]].values.flatten().tolist()
-    fastq_string = " ".join(str(f) for f in fastq_files)
-
     # Run the functions
-    run_fastqc(fastq_string, threads)
+    run_fastqc(df, threads)
     run_star(df, genome_dir, threads)
     run_htseq(df, strand, gtf)
     run_multiqc()
