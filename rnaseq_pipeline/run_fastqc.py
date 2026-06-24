@@ -1,3 +1,6 @@
+import os
+import subprocess as sp
+
 # FastQC
 def run_fastqc(all_fastq_files, threads):
     os.makedirs(os.path.dirname("FastQC/"), exist_ok=True)

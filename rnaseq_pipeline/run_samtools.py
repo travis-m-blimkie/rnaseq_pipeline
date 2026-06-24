@@ -1,3 +1,5 @@
+import subprocess as sp
+
 # Samtools/CRAM
 def run_samtools(df, threads, fasta):
     for _, row in df.iterrows():

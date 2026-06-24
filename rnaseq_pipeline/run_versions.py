@@ -1,3 +1,7 @@
+import subprocess as sp
+from re import search
+import pandas as pd
+
 # Version information
 def run_versions(run_cram):
     version_fastqc = (

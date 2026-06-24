@@ -1,3 +1,6 @@
+import os
+import subprocess as sp
+
 # HTSeq
 def run_htseq(df, strand, gtf_file):
     os.makedirs("HTSeq", exist_ok=True)

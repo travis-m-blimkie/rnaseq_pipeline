@@ -1,9 +1,4 @@
 import argparse
-import os
-import subprocess as sp
-from glob import glob
-from re import search
-
 import pandas as pd
 
 from rnaseq_pipeline.run_fastqc import run_fastqc

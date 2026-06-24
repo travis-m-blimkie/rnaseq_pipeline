@@ -1,3 +1,7 @@
+import os
+import subprocess as sp
+from glob import glob
+
 # STAR
 def run_star(df, genome_dir, threads):
     os.makedirs(os.path.dirname("STAR/"), exist_ok=True)
