@@ -57,10 +57,14 @@ def run_versions(run_cram):
         version_multiqc_raw,
     ).group(0)
 
+    version_parallel_raw = sp.run(['parallel', '--version'], capture_output=True, text=True)
+    version_parallel_match = search(r'GNU parallel (\d{8})', version_parallel_raw.stdout)
+    version_parallel = version_parallel_match.group(1)
+
     if not run_cram:
         program_version_dict = {
-            "Program": ["FastQC", "STAR", "HTSeq", "MultiQC"],
-            "Version": [version_fastqc, version_star, version_htseq, version_multiqc],
+            "Program": ["FastQC", "STAR", "HTSeq", "parallel", "MultiQC"],
+            "Version": [version_fastqc, version_star, version_htseq, version_parallel, version_multiqc],
         }
     else:
         version_samtools_raw = sp.check_output(
@@ -73,11 +77,12 @@ def run_versions(run_cram):
         ).group(0)
 
         program_version_dict = {
-            "Program": ["FastQC", "STAR", "HTSeq", "MultiQC", "Samtools"],
+            "Program": ["FastQC", "STAR", "HTSeq", "parallel", "MultiQC", "Samtools"],
             "Version": [
                 version_fastqc,
                 version_star,
                 version_htseq,
+                version_parallel,
                 version_multiqc,
                 version_samtools,
             ],
