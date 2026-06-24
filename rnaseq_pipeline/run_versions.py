@@ -61,16 +61,12 @@ def run_versions(run_cram):
     version_parallel_match = search(r'GNU parallel (\d{8})', version_parallel_raw.stdout)
     version_parallel = version_parallel_match.group(1)
 
-    if not run_cram:
-        program_version_dict = {
-            "Program": ["FastQC", "STAR", "HTSeq", "parallel", "MultiQC"],
-            "Version": [version_fastqc, version_star, version_htseq, version_parallel, version_multiqc],
-        }
-    else:
+    if run_cram:
         version_samtools_raw = sp.check_output(
             "samtools --version | grep samtools",
             shell=True,
         ).decode("utf-8").replace("\n", "")
+
         version_samtools = search(
             "[0-9]{1,2}\\.[0-9]{1,2}",
             version_samtools_raw,
@@ -84,8 +80,13 @@ def run_versions(run_cram):
                 version_htseq,
                 version_parallel,
                 version_multiqc,
-                version_samtools,
-            ],
+                version_samtools
+            ]
+        }
+    else:
+        program_version_dict = {
+            "Program": ["FastQC", "STAR", "HTSeq", "parallel", "MultiQC"],
+            "Version": [version_fastqc, version_star, version_htseq, version_parallel, version_multiqc]
         }
 
     program_version_df = pd.DataFrame(program_version_dict)
