@@ -44,7 +44,6 @@ parser.add_argument(
 parser.add_argument(
     "--cram",
     action="store_true",
-    default=True,
     help="Enable CRAM output (default: True)"
 )
 
@@ -72,7 +71,23 @@ fastq_string = " ".join(str(f) for f in fastq_files)
 
 # FastQC
 def run_fastqc(all_fastq_files, threads):
-    os.makedirs(os.path.dirname("FastQC/"), exist_ok=True)
+    """
+    Run FastQC on a set of FASTQ files.
+
+    Executes FastQC in quiet mode across the given FASTQ files, writing all
+    reports to the "FastQC" directory (created if it doesn't already exist).
+
+    Args:
+        all_fastq_files (str): Space-separated string of paths to FASTQ
+            files to run FastQC on.
+        threads (int): Number of threads to pass to FastQC for parallel
+            processing of files.
+
+    Raises:
+        subprocess.CalledProcessError: If the fastqc command exits with a
+            non-zero status.
+    """
+    os.makedirs("FastQC", exist_ok=True)
     fastqc_command = (
         f"fastqc -q -t {threads} -o FastQC/ {all_fastq_files}"
     )
@@ -80,7 +95,29 @@ def run_fastqc(all_fastq_files, threads):
 
 # STAR
 def run_star(df, genome_dir, threads):
-    os.makedirs(os.path.dirname("STAR/"), exist_ok=True)
+    """
+    Align FASTQ files to a reference genome using STAR.
+
+    Iterates over each row in the sample sheet, running STAR in
+    alignReads mode on the corresponding fastq1/fastq2 files, with the
+    genome kept loaded in shared memory ("LoadAndKeep") across samples for
+    efficiency. Output BAM files are sorted by coordinate and written to the
+    "STAR" directory, then renamed from STAR's default
+    "<name>_Aligned.sortedByCoord.out.bam" naming to "<name>.bam". Once all
+    samples have been processed, the shared genome index is removed from
+    memory.
+
+    Args:
+        df (pandas.DataFrame): Sample sheet containing "name", "fastq1", and
+            "fastq2" columns for each sample to align.
+        genome_dir (str): Path to the STAR genome index directory.
+        threads (int): Number of threads to pass to STAR for alignment.
+
+    Raises:
+        subprocess.CalledProcessError: If any STAR command (alignment or
+            genome unload) exits with a non-zero status.
+    """
+    os.makedirs("STAR", exist_ok=True)
 
     for _, row in df.iterrows():
         name = row["name"]
@@ -119,6 +156,26 @@ def run_star(df, genome_dir, threads):
 
 # HTSeq
 def run_htseq(df, strand, gtf_file):
+    """
+    Quantify gene counts from BAM files using htseq-count, run via GNU parallel.
+
+    Builds one htseq-count command per sample in the sample sheet, reading
+    each sample's BAM file ("STAR/<name>.bam") and writing counts to
+    "HTSeq/<name>.count". All commands are passed to GNU parallel, which
+    runs two samples concurrently.
+
+    Args:
+        df (pandas.DataFrame): Sample sheet containing a "name" column used
+            to locate each sample's BAM file.
+        strand (str): Strandedness setting passed to htseq-count's -s flag
+            (e.g. "yes", "no", "reverse").
+        gtf_file (str): Path to the GTF annotation file used for counting.
+
+    Raises:
+        subprocess.CalledProcessError: If GNU parallel exits with a
+            non-zero status, e.g. because one or more htseq-count jobs
+            failed.
+    """
     os.makedirs("HTSeq", exist_ok=True)
 
     # Build one htseq-count command per sample
@@ -149,11 +206,41 @@ def run_htseq(df, strand, gtf_file):
 
 # MultiQC
 def run_multiqc():
+    """
+    Run MultiQC to aggregate QC reports from FastQC, STAR, and HTSeq outputs.
+
+    Searches the "FastQC", "STAR", and "HTSeq" directories for compatible
+    log/report files and compiles them into a single summary report written
+    to the "MultiQC" directory. Existing reports in the output directory are
+    overwritten.
+
+    Raises:
+        subprocess.CalledProcessError: If the multiqc command exits with a
+            non-zero status.
+    """
     multiqc_cmd = "multiqc -f -o MultiQC FastQC STAR HTSeq"
     sp.run(multiqc_cmd, shell=True, check=True)
 
 # Samtools/CRAM
 def run_samtools(df, threads, fasta):
+    """
+    Convert per-sample BAM files to CRAM format using samtools.
+
+    Iterates over each row in the sample sheet, converting the corresponding
+    STAR-aligned BAM file ("STAR/<name>.bam") to a reference-compressed CRAM
+    file ("STAR/<name>.cram") in the same directory.
+
+    Args:
+        df (pandas.DataFrame): Sample sheet containing a "name" column used
+            to locate each sample's BAM file.
+        threads (int): Number of threads to pass to samtools for compression.
+        fasta (str): Path to the reference FASTA file used for CRAM
+            reference-based compression (passed to samtools -T).
+
+    Raises:
+        subprocess.CalledProcessError: If any samtools command exits with a
+            non-zero status.
+    """
     for _, row in df.iterrows():
         name = row["name"]
 
@@ -169,6 +256,26 @@ def run_samtools(df, threads, fasta):
 
 # Version information
 def run_versions(run_cram):
+    """
+    Record the installed versions of all pipeline tools to a CSV file.
+
+    Queries the installed versions of FastQC, STAR, HTSeq, and MultiQC by
+    calling each tool's version command and parsing the output. If
+    `run_cram` is True, samtools' version is also queried and included,
+    since CRAM conversion depends on it. The collected program/version
+    pairs are written to "version_information.csv" in the current working
+    directory.
+
+    Args:
+        run_cram (bool): Whether the pipeline includes a CRAM conversion
+            step. If True, samtools is included in the version report.
+
+    Raises:
+        subprocess.CalledProcessError: If any version-check command exits
+            with a non-zero status.
+        AttributeError: If a version string cannot be parsed from a tool's
+            output (i.e. the regex search returns no match).
+    """
     version_fastqc = (
         sp.check_output("fastqc --version", shell=True)
         .decode("utf-8")
@@ -234,7 +341,7 @@ def run_versions(run_cram):
 # Run the functions
 # run_fastqc(fastq_string, threads)
 # run_star(df, genome_dir, threads)
-run_htseq(df, strand, gtf)
+# run_htseq(df, strand, gtf)
 run_multiqc()
 if cram:
     run_samtools(df, threads, fasta)
