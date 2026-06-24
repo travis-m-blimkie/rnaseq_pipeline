@@ -22,7 +22,7 @@ git clone https://github.com/travis-m-blimkie/rnaseq_pipeline
 cd rnaseq_pipeline
 
 # Create the conda environment with all dependencies
-conda env create -f environment.yml
+conda create -f environment.yml --channel-priority strict
 ```
 
 ## Example usage
