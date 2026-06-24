@@ -119,11 +119,12 @@ def run_star(df, genome_dir, threads):
 
 # HTSeq
 def run_htseq(df, strand, gtf_file):
-    os.makedirs(os.path.dirname("HTSeq/"), exist_ok=True)
+    os.makedirs("HTSeq", exist_ok=True)
 
+    # Build one htseq-count command per sample
+    commands = []
     for _, row in df.iterrows():
         name = row["name"]
-
         htseq_cmd = (
             f"htseq-count "
             f"-s {strand} "
@@ -134,7 +135,17 @@ def run_htseq(df, strand, gtf_file):
             f"{gtf_file} "
             f"> HTSeq/{name}.count"
         )
-        sp.run(htseq_cmd, shell=True, check=True)
+        commands.append(htseq_cmd)
+
+    # Feed all commands to GNU parallel, running two at a time
+    joined_cmds = "\n".join(commands)
+    sp.run(
+        ["parallel", "-j", "2"],
+        input=joined_cmds,
+        text=True,
+        shell=False,
+        check=True
+    )
 
 # MultiQC
 def run_multiqc():
