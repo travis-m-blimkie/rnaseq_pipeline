@@ -13,4 +13,4 @@ dependencies = [
 ]
 
 [project.scripts]
-pipeline = "pipeline.cli:main"
+rnaseq_pipeline = "rnaseq_pipeline.cli:main"
