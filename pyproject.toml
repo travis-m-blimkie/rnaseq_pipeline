@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=77.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "rnaseq_pipeline"
-version = "0.2.0"
+version = "0.2.1"
 authors = [
   { name="Travis Blimkie", email="travis.m.blimkie@gmail.com" },
 ]
@@ -15,7 +15,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
-license = "GNU v3"
+license = "GPL-3.0-only"
 license-files = ["LICEN[CS]E*"]
 dependencies = [
     "pandas>=1.5",
