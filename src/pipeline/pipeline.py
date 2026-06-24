@@ -42,7 +42,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--do_cram",
+    "--cram",
     action="store_true",
     default=True,
     help="Enable CRAM output (default: True)"
@@ -62,7 +62,7 @@ genome_dir = args.genome_dir
 threads = args.threads
 strand = args.strand
 gtf = args.gtf
-do_cram = args.do_cram
+cram = args.cram
 fasta = args.fasta
 
 df = pd.read_csv(sample_sheet)
@@ -236,6 +236,6 @@ def run_versions(run_cram):
 # run_star(df, genome_dir, threads)
 run_htseq(df, strand, gtf)
 run_multiqc()
-if do_cram:
+if cram:
     run_samtools(df, threads, fasta)
-run_versions(do_cram)
+run_versions(cram)
