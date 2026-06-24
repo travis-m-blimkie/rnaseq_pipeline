@@ -13,4 +13,4 @@ dependencies:
   - pandas
   - pip
   - pip:
-      - git+https://github.com/travis-m-blimkie/rnaseq_pipeline.git@conda
+      - git+https://github.com/travis-m-blimkie/rnaseq_pipeline.git@main
