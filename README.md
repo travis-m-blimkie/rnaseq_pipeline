@@ -68,7 +68,7 @@ conda deactivate
 - STAR: <https://alexdobin.github.io/STAR/>
 - HTSeq: <https://htseq.readthedocs.io/en/latest/#>
 - MultiQC: <https://seqera.io/multiqc/>
-- Samtoils: <https://www.htslib.org/>
+- Samtools: <https://www.htslib.org/>
 - GNU parallel: <https://www.gnu.org/software/parallel/>
 
 ## Authors
