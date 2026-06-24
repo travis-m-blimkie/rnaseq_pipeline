@@ -1,0 +1,83 @@
+import argparse
+import pandas as pd
+
+from rnaseq_pipeline.run_fastqc import run_fastqc
+from rnaseq_pipeline.run_star import run_star
+from rnaseq_pipeline.run_htseq import run_htseq
+from rnaseq_pipeline.run_multiqc import run_multiqc
+from rnaseq_pipeline.run_samtools import run_samtools
+from rnaseq_pipeline.run_versions import run_versions
+
+def main():
+    parser = argparse.ArgumentParser(description="Pipeline parameters")
+
+    parser.add_argument(
+        "--sample_sheet",
+        type=str,
+        required=True,
+        help="Path to the sample sheet CSV file"
+    )
+
+    parser.add_argument(
+        "--genome_dir",
+        type=str,
+        required=True,
+        help="Path to the genome directory"
+    )
+
+    parser.add_argument(
+        "--threads",
+        type=int,
+        default=8,
+        help="Number of threads to use (default: 8)"
+    )
+
+    parser.add_argument(
+        "--strand",
+        type=str,
+        default="reverse",
+        help="Stranded option for HTSeq: yes, no, reverse (default)"
+    )
+
+    parser.add_argument(
+        "--gtf",
+        type=str,
+        help="Path to the GTF file for HTSeq"
+    )
+
+    parser.add_argument(
+        "--cram",
+        action="store_true",
+        help="Enable CRAM output"
+    )
+
+    parser.add_argument(
+        "--fasta",
+        type=str,
+        help="Path to fasta for Samtools CRAM conversion. Required if --cram is specified"
+    )
+
+    args = parser.parse_args()
+
+    # Define input parameters
+    sample_sheet = args.sample_sheet
+    genome_dir = args.genome_dir
+    threads = args.threads
+    strand = args.strand
+    gtf = args.gtf
+    cram = args.cram
+    fasta = args.fasta
+
+    df = pd.read_csv(sample_sheet)
+
+    # Run the functions
+    run_fastqc(df, threads)
+    run_star(df, genome_dir, threads)
+    run_htseq(df, strand, gtf)
+    run_multiqc()
+    if cram:
+        run_samtools(df, threads, fasta)
+    run_versions(cram)
+
+if __name__ == "__main__":
+    main()

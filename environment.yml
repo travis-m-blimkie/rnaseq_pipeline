@@ -1,0 +1,16 @@
+name: rnaseq_pipeline
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.12.10
+  - fastqc
+  - star
+  - htseq
+  - samtools
+  - multiqc
+  - parallel
+  - pandas
+  - pip
+  - pip:
+      - git+https://github.com/travis-m-blimkie/rnaseq_pipeline.git@conda

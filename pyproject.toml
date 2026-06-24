@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rnaseq_pipeline"
+version = "0.2.0"
+authors = [
+  { name="Travis Blimkie", email="travis.m.blimkie@gmail.com" },
+]
+description = "RNA-seq alignment and quantification pipeline for short read data"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "GNU v3"
+license-files = ["LICEN[CS]E*"]
+dependencies = [
+    "pandas>=1.5",
+]
+
+[project.scripts]
+rnaseq_pipeline = "rnaseq_pipeline.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/travis-m-blimkie/rnaseq_pipeline"
+Issues = "https://github.com/travis-m-blimkie/rnaseq_pipeline/issues"
