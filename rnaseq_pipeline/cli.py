@@ -6,6 +6,13 @@ from re import search
 
 import pandas as pd
 
+from rnaseq_pipeline.run_fastqc import run_fastqc
+from rnaseq_pipeline.run_star import run_star
+from rnaseq_pipeline.run_htseq import run_htseq
+from rnaseq_pipeline.run_multiqc import run_multiqc
+from rnaseq_pipeline.run_samtools import run_samtools
+from rnaseq_pipeline.run_versions import run_versions
+
 def main():
     parser = argparse.ArgumentParser(description="Pipeline parameters")
 
