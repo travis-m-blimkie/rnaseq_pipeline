@@ -40,3 +40,15 @@ def run_star(df, genome_dir, threads):
         shell=True,
         check=True,
     )
+
+    files_to_remove = [
+        "Aligned.out.sam",
+        "Log.final.out",
+        "Log.out",
+        "Log.progress.out",
+        "SJ.out.tab"
+    ]
+
+    for filename in files_to_remove:
+        if os.path.exists(filename):
+            os.remove(filename)
